@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garage Door Button</title>
+<style>
+    canvas {
+        cursor: pointer;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    }
+</style>
+</head>
+<body style="background-color: #222;">
+
+<canvas id="garageButton"></canvas>
+
+<script>
+    var canvas = document.getElementById("garageButton");
+    var ctx = canvas.getContext("2d");
+let latitude, longitude;
+
+function getGeolocation() {
+    return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    latitude = position.coords.latitude;
+                    longitude = position.coords.longitude;
+                    const coordinates = { latitude, longitude };
+                    resolve(coordinates);
+                },
+                error => {
+                    reject(error);
+                }
+            );
+        } else {
+            reject("Geolocation is not supported by this browser.");
+        }
+    });
+}
+
+    // Function to draw the button
+    function drawButton(borderColor) {
+        // Adjust canvas size based on window size
+        canvas.width = window.innerWidth * 0.8; // Adjust as needed
+        canvas.height = canvas.width * 0.5; // Adjust aspect ratio as needed
+
+        // Draw background gradient
+        var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "#444");
+        gradient.addColorStop(1, "#222");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw button border
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+        // Draw text
+        ctx.font = "bold " + (canvas.height * 0.25) + "px Arial"; // Adjust font size based on canvas height
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Garage Door", canvas.width / 2, canvas.height / 2);
+    }
+
+    // Initial draw
+    drawButton("#333"); // Default border color
+
+    // Function to handle window resize
+    window.addEventListener("resize", function() {
+        // Redraw button on window resize
+        drawButton("#333"); // Default border color
+    });
+
+    // Function to handle click event
+    canvas.addEventListener("click", function() {
+// Example usage:
+getGeolocation()
+    .then(coordinates => {
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+        // Now latitude and longitude are assigned globally and can be used elsewhere
+        var xhr = new XMLHttpRequest();
+        var url = `${window.location.protocol}//${window.location.hostname}:8000/garage/toggle`;
+        var queryParams = window.location.search;
+        if (queryParams) {
+          url += queryParams;
+          url += "&lat=" + latitude;
+	  url += "&lng=" + longitude;
+        }
+
+        xhr.open("GET", url, true);
+        xhr.onload = function () {
+            if (xhr.status == 200) {
+                console.log("Request successful");
+                // Change border color to green for success
+                drawButton("green");
+            } else {
+                console.error("Error:", xhr.statusText);
+                // Change border color to red for error
+                drawButton("red");
+            }
+        };
+        xhr.onerror = function () {
+            console.error("Request failed");
+            // Change border color to red for error
+            drawButton("red");
+        };
+        xhr.send();
+    })
+    .catch(error => {
+        console.error("Error getting geolocation:", error);
+    });
+    });
+
+</script>
+
+</body>
+</html>
+

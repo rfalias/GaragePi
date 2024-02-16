@@ -1,0 +1,13 @@
+[Unit]
+Description=uvicorn
+After=network.target
+
+[Service]
+ExecStart=/home/user/venv/bin/uvicorn main:app --reload --host=0.0.0.0 --ssl-keyfile=/home/user/venv/ssl/live/access.uninspired.dev/privkey.pem --ssl-certfile=/home/user/venv/ssl/live/access.uninspired.dev/fullchain.pem
+WorkingDirectory=/home/user/venv
+User=root
+Group=root
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
