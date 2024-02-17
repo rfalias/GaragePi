@@ -9,10 +9,10 @@ import geofence
 app = FastAPI()
 
 origins = [
-    "https://access.uninspired.dev:8000",
-    "https://access.uninspired.dev",
-    "http://access.uninspired.dev",
-    "http://access.uninspired.dev:8000",
+    "https://yoursite.com:8000",
+    "https://yoursite.com",
+    "http://yoursite.com",
+    "http://yoursite.com:8000",
 ]
 
 app.add_middleware(
